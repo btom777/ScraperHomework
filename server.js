@@ -11,6 +11,11 @@ var mongoose = require('mongoose');
 // Notice: Our scraping tools are prepared, too
 var request = require('request');
 var cheerio = require('cheerio');
+var exphbs = require('express-handlebars');
+
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
 
 // use morgan and bodyparser with our app
 app.use(logger('dev'));
@@ -47,11 +52,12 @@ var Article = require('./models/Article.js');
 
 // Simple index route
 app.get('/', function(req, res) {
-  res.send(index.html);
+  res.render('index');
 });
 
 // A GET request to scrape the echojs website.
 app.get('/scrape', function(req, res) {
+
 	// first, we grab the body of the html with request
   request('http://www.wsj.com/', function(error, response, html) {
   	// then, we load that into cheerio and save it to $ for a shorthand selector
@@ -88,7 +94,7 @@ app.get('/scrape', function(req, res) {
     });
   });
   // tell the browser that we finished scraping the text.
-  res.send("Scrape Complete");
+  res.render('complete');
 });
 
 // this will get the articles we scraped from the mongoDB
@@ -152,7 +158,7 @@ app.post('/articles/:id', function(req, res){
 					console.log(err);
 				} else {
 					// or send the document to the browser
-					res.send(doc);
+					res.render(doc);
 				}
 			});
 		}
